@@ -4,7 +4,8 @@ class MockRedisLock(object):
     to allow testing without a real redis server.
     """
 
-    def __init__(self, redis, name, timeout=None, sleep=0.1):
+    def __init__(self, redis, name, timeout=None, sleep=0.1,
+                 blocking=True, blocking_timeout=None, thread_local=True):
         """Initialize the object."""
 
         self.redis = redis
@@ -12,6 +13,9 @@ class MockRedisLock(object):
         self.acquired_until = None
         self.timeout = timeout
         self.sleep = sleep
+        self.blocking = blocking
+        self.blocking_timeout = blocking_timeout
+        self.thread_local = bool(thread_local)
 
     def acquire(self, blocking=True):  # pylint: disable=R0201,W0613
         """Emulate acquire."""
@@ -23,8 +27,14 @@ class MockRedisLock(object):
 
         return
 
+    def extend(self, additional_time):  # pylint: disable=R0201,W0613
+        """Emulate extend."""
+
+        return
+
     def __enter__(self):
-        return self.acquire()
+        self.acquire(blocking=True)
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.release()

@@ -74,9 +74,14 @@ class MockRedis(object):
 
     # Transactions Functions #
 
-    def lock(self, key, timeout=0, sleep=0):
+    def lock(self, name, timeout=None, sleep=0.1, blocking_timeout=None,
+             lock_class=None, thread_local=True):
         """Emulate lock."""
-        return MockRedisLock(self, key, timeout, sleep)
+        if lock_class is None:
+            lock_class = MockRedisLock
+        return lock_class(self, name, timeout=timeout, sleep=sleep,
+                          blocking_timeout=blocking_timeout,
+                          thread_local=thread_local)
 
     def pipeline(self, transaction=True, shard_hint=None):
         """Emulate a redis-python pipeline."""
